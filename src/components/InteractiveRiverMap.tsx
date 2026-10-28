@@ -38,9 +38,9 @@ export const InteractiveRiverMap: React.FC<InteractiveRiverMapProps> = ({
     });
     mapInstanceRef.current = map;
 
-    // CartoDB Dark Matter tile layer with CARTO API key & cache buster to bypass old watermarked tile cache
+    // CartoDB Voyager tile layer (colorful, sunlit river & green parks)
     const mapApiKey = 'cb1_4w2b_1_30911a97e5d9f5572751d59c';
-    L.tileLayer(`https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key=${mapApiKey}&v=2`, {
+    L.tileLayer(`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${mapApiKey}&v=2`, {
       subdomains: 'abcd',
       maxZoom: 19,
     }).addTo(map);
@@ -198,17 +198,17 @@ export const InteractiveRiverMap: React.FC<InteractiveRiverMapProps> = ({
   return (
     <div className="space-y-4">
       {/* Map Filter Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-[#0f1117] border border-white/5 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-white border border-[var(--line)] text-xs shadow-sm">
         <div className="flex items-center gap-1.5 overflow-x-auto">
-          <span className="text-white/40 font-mono mr-1">ท่าเรือ:</span>
+          <span className="text-[var(--muted)] font-mono mr-1">ท่าเรือ:</span>
           {(['All', 'ICONSIAM', 'Asiatique', 'River City Bangkok'] as const).map((pier) => (
             <button
               key={pier}
               onClick={() => handlePierFilter(pier)}
-              className={`px-3 py-1.5 rounded-xl font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-full font-medium transition-colors cursor-pointer ${
                 activePier === pier
-                  ? 'bg-white text-black font-semibold'
-                  : 'bg-white/5 text-white/70 hover:text-white hover:bg-white/10'
+                  ? 'bg-[var(--ink)] text-[var(--on-ink)] font-semibold shadow-xs'
+                  : 'bg-[var(--surface-2)] text-[var(--muted)] hover:text-[var(--text)] border border-[var(--line)]'
               }`}
             >
               {pier === 'All' ? 'ทั้งหมด (9 ลำ)' : pier}
@@ -220,21 +220,21 @@ export const InteractiveRiverMap: React.FC<InteractiveRiverMapProps> = ({
         <div className="flex items-center gap-1">
           <button
             onClick={() => mapInstanceRef.current?.zoomIn()}
-            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 transition-colors"
+            className="p-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-slate-200 text-[var(--text)] transition-colors cursor-pointer border border-[var(--line)]"
             title="ซูมเข้า"
           >
             <ZoomIn className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => mapInstanceRef.current?.zoomOut()}
-            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 transition-colors"
+            className="p-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-slate-200 text-[var(--text)] transition-colors cursor-pointer border border-[var(--line)]"
             title="ซูมออก"
           >
             <ZoomOut className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => mapInstanceRef.current?.flyTo(defaultCenter, defaultZoom, { duration: 0.8 })}
-            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 transition-colors"
+            className="p-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-slate-200 text-[var(--text)] transition-colors cursor-pointer border border-[var(--line)]"
             title="รีเซ็ตตำแหน่ง"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -243,22 +243,22 @@ export const InteractiveRiverMap: React.FC<InteractiveRiverMapProps> = ({
       </div>
 
       {/* Real Leaflet Map Container */}
-      <div className="relative w-full h-[520px] sm:h-[620px] rounded-3xl overflow-hidden border border-white/10 bg-[#090b10] shadow-2xl">
+      <div className="relative w-full h-[520px] sm:h-[620px] rounded-3xl overflow-hidden border border-amber-900/15 bg-white shadow-xl">
         {/* Leaflet DOM container */}
         <div ref={mapContainerRef} className="w-full h-full z-0" />
 
         {/* Floating Hover Card */}
         {hoveredShip && (
-          <div className="absolute bottom-4 left-4 z-10 p-3 rounded-2xl bg-[#12141e]/95 border border-white/15 backdrop-blur-md shadow-2xl flex items-center gap-3 max-w-sm pointer-events-none animate-in fade-in duration-150">
+          <div className="absolute bottom-4 left-4 z-10 p-3.5 rounded-2xl bg-white/95 border border-amber-900/15 backdrop-blur-md shadow-2xl flex items-center gap-3.5 max-w-sm pointer-events-none animate-in fade-in duration-150">
             <img
               src={hoveredShip.images.hero}
               alt={hoveredShip.nameTh}
-              className="w-16 h-14 rounded-xl object-cover shrink-0"
+              className="w-16 h-14 rounded-xl object-cover shrink-0 shadow-xs"
             />
             <div className="overflow-hidden text-xs">
-              <h4 className="font-bold text-white truncate">{hoveredShip.nameTh}</h4>
-              <p className="text-[11px] text-white/50">{hoveredShip.pier}</p>
-              <p className="text-amber-400 font-semibold mt-0.5">
+              <h4 className="font-bold text-[var(--text)] truncate">{hoveredShip.nameTh}</h4>
+              <p className="text-[11px] text-[var(--muted)]">{hoveredShip.pier}</p>
+              <p className="text-orange-600 font-bold mt-0.5 num">
                 เริ่มต้น ฿{hoveredShip.startingPrice.toLocaleString()}.- · คลิกเพื่อดูรายละเอียด
               </p>
             </div>
@@ -266,9 +266,9 @@ export const InteractiveRiverMap: React.FC<InteractiveRiverMapProps> = ({
         )}
 
         {/* Tip Indicator */}
-        <div className="absolute bottom-4 right-4 z-10 px-3 py-1.5 rounded-full bg-black/80 border border-white/10 backdrop-blur-md text-[11px] text-white/60 flex items-center gap-1.5 pointer-events-none">
-          <Info className="w-3.5 h-3.5 text-amber-400" />
-          <span>คลิกที่หมุดเรือเพื่อเปิด Side Modal ด้านขวา</span>
+        <div className="absolute bottom-4 right-4 z-10 px-3.5 py-1.5 rounded-full bg-white/90 border border-amber-900/15 backdrop-blur-md text-[11px] text-[var(--muted)] flex items-center gap-1.5 pointer-events-none shadow-sm">
+          <Info className="w-3.5 h-3.5 text-amber-600" />
+          <span>คลิกที่หมุดเรือเพื่อดูเมนูอาหารและรอบเวลา</span>
         </div>
       </div>
 
@@ -283,23 +283,23 @@ export const InteractiveRiverMap: React.FC<InteractiveRiverMapProps> = ({
               }
               onSelectShip(ship);
             }}
-            className="minimal-card p-3.5 flex items-center justify-between cursor-pointer group"
+            className="nautical-card p-3.5 flex items-center justify-between cursor-pointer group bg-white hover:border-amber-400"
           >
             <div className="flex items-center gap-3">
               <img
                 src={ship.images.hero}
                 alt={ship.nameTh}
-                className="w-12 h-12 rounded-xl object-cover"
+                className="w-12 h-12 rounded-xl object-cover shadow-xs"
               />
               <div>
-                <h4 className="text-sm font-semibold text-white group-hover:text-amber-300 transition-colors">
+                <h4 className="text-sm font-bold text-[var(--text)] group-hover:text-orange-600 transition-colors">
                   {ship.nameTh}
                 </h4>
-                <p className="text-xs text-white/50">{ship.pier} · ฿{ship.startingPrice.toLocaleString()}</p>
+                <p className="text-xs text-[var(--muted)]">{ship.pier} · <span className="font-semibold text-orange-600">฿{ship.startingPrice.toLocaleString()}</span></p>
               </div>
             </div>
-            <span className="text-xs text-white/40 group-hover:text-white transition-colors">
-              เปิดข้อมูล →
+            <span className="text-xs text-amber-700 font-medium group-hover:translate-x-0.5 transition-transform">
+              ดูโต๊ะ →
             </span>
           </div>
         ))}

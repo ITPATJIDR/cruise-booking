@@ -431,6 +431,38 @@ export const ThreeSunsetCanvas: React.FC<ThreeSunsetCanvasProps> = () => {
       stateRef.current.isDragging = false;
     };
 
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        const rect = container.getBoundingClientRect();
+        const x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+        const y = -(((touch.clientY - rect.top) / rect.height) * 2 - 1);
+        stateRef.current.targetMouseX = x;
+        stateRef.current.targetMouseY = y;
+
+        if (stateRef.current.isInspecting && stateRef.current.isDragging) {
+          const deltaX = touch.clientX - stateRef.current.lastPointerX;
+          const deltaY = touch.clientY - stateRef.current.lastPointerY;
+          stateRef.current.orbitAngleX += deltaX * 0.008;
+          stateRef.current.orbitAngleY = Math.max(0.1, Math.min(1.2, stateRef.current.orbitAngleY + deltaY * 0.005));
+          stateRef.current.lastPointerX = touch.clientX;
+          stateRef.current.lastPointerY = touch.clientY;
+        }
+      }
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (stateRef.current.isInspecting && e.touches.length > 0) {
+        stateRef.current.isDragging = true;
+        stateRef.current.lastPointerX = e.touches[0].clientX;
+        stateRef.current.lastPointerY = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchEnd = () => {
+      stateRef.current.isDragging = false;
+    };
+
     const handleScroll = () => {
       const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
       const scrollPercent = scrollMax > 0 ? window.scrollY / scrollMax : 0;
@@ -440,6 +472,9 @@ export const ThreeSunsetCanvas: React.FC<ThreeSunsetCanvasProps> = () => {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd);
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     // RESIZE LISTENER
@@ -586,6 +621,9 @@ export const ThreeSunsetCanvas: React.FC<ThreeSunsetCanvasProps> = () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
       if (container && renderer.domElement) {
@@ -596,88 +634,99 @@ export const ThreeSunsetCanvas: React.FC<ThreeSunsetCanvasProps> = () => {
   }, []);
 
   return (
-    <div className="relative w-full h-[650px] lg:h-[780px] overflow-hidden select-none">
+    <div className="relative w-full h-[580px] lg:h-[680px] overflow-hidden select-none bg-[#090b10]">
       {/* 3D WebGL Canvas */}
-      <div ref={containerRef} className="absolute inset-0 cursor-grab active:cursor-grabbing w-full h-full" />
+      <div
+        ref={containerRef}
+        className={`absolute inset-0 w-full h-full ${
+          isInspecting ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
+        }`}
+      />
 
-      {/* Floating HUD Controls for 3D Scene */}
-      <div className="absolute top-6 right-6 z-20 flex flex-col items-end gap-2.5 pointer-events-auto">
-        {/* Time of Day Switcher */}
-        <div className="glass-panel rounded-full p-1.5 flex items-center gap-1 shadow-2xl border border-amber-500/30">
+      {/* Floating Atmosphere & Camera Controls (Human Web Design Tokens) */}
+      <div className="absolute top-5 right-5 sm:top-6 sm:right-6 z-20 flex flex-col items-end gap-2.5 pointer-events-auto">
+        {/* Time of Day Segmented Control */}
+        <div className="bg-[#10131b]/95 border border-white/10 rounded-full p-1 flex items-center gap-1 shadow-xl">
           <button
             onClick={() => setTimeOfDay('sunset')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
               timeOfDay === 'sunset'
-                ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg'
-                : 'text-slate-300 hover:text-white'
+                ? 'bg-[#e59a34] text-[#090b10] font-semibold'
+                : 'text-white/60 hover:text-white'
             }`}
-            title="รอบซันเซ็ต พระอาทิตย์ตก"
+            title="รอบซันเซ็ต ชมพระอาทิตย์ตก"
           >
-            <Sunset className="w-3.5 h-3.5 text-amber-300" />
+            <Sunset className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">17:30 ซันเซ็ต</span>
           </button>
           <button
             onClick={() => setTimeOfDay('twilight')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
               timeOfDay === 'twilight'
-                ? 'bg-gradient-to-r from-purple-600 to-rose-600 text-white shadow-lg'
-                : 'text-slate-300 hover:text-white'
+                ? 'bg-[#9333ea] text-white font-semibold'
+                : 'text-white/60 hover:text-white'
             }`}
             title="รอบทไวไลท์ แสงทไวไลท์"
           >
-            <Sun className="w-3.5 h-3.5 text-rose-300" />
+            <Sun className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">18:30 ทไวไลท์</span>
           </button>
           <button
             onClick={() => setTimeOfDay('night')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
               timeOfDay === 'night'
-                ? 'bg-gradient-to-r from-blue-700 to-indigo-900 text-white shadow-lg'
-                : 'text-slate-300 hover:text-white'
+                ? 'bg-[#2563eb] text-white font-semibold'
+                : 'text-white/60 hover:text-white'
             }`}
             title="รอบดินเนอร์ ราตรี"
           >
-            <Moon className="w-3.5 h-3.5 text-sky-300" />
+            <Moon className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">20:00 ดินเนอร์</span>
           </button>
         </div>
 
-        {/* 3D Orbit / Free Rotation Toggle */}
+        {/* 3D Orbit / View Angle Switcher */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsInspecting(!isInspecting)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium border transition-colors ${
               isInspecting
-                ? 'bg-amber-500 text-slate-950 font-semibold border-amber-400 shadow-lg shadow-amber-500/20'
-                : 'glass-panel text-slate-200 border-amber-500/20 hover:border-amber-500/40'
+                ? 'bg-white text-black font-semibold border-white shadow-lg'
+                : 'bg-[#10131b]/95 text-white/70 hover:text-white border-white/10'
             }`}
           >
-            <Rotate3d className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: isInspecting ? '3s' : '0s' }} />
-            <span>{isInspecting ? 'โหมดหมุนดูเรือ 360° (คลิกลากได้)' : 'คลิกเพื่อหมุน 3D อิสระ'}</span>
+            <Rotate3d className="w-3.5 h-3.5" />
+            <span>{isInspecting ? 'หมุน 360° (คลิกลากได้)' : 'หมุนดูรอบลำเรือ 3D'}</span>
           </button>
 
           {!isInspecting && (
-            <div className="hidden sm:flex items-center gap-1 glass-panel rounded-full p-1 border border-amber-500/20">
+            <div className="hidden sm:flex items-center gap-1 bg-[#10131b]/95 rounded-full p-1 border border-white/10 text-xs">
               <button
                 onClick={() => setCameraAngle('front')}
-                className={`px-2.5 py-1 text-xs rounded-full transition-all ${
-                  cameraAngle === 'front' ? 'bg-amber-500/30 text-amber-300 font-medium' : 'text-slate-400 hover:text-slate-200'
+                className={`px-2.5 py-1 rounded-full transition-colors ${
+                  cameraAngle === 'front'
+                    ? 'bg-white/15 text-white font-medium'
+                    : 'text-white/50 hover:text-white'
                 }`}
               >
                 มุมหน้า
               </button>
               <button
                 onClick={() => setCameraAngle('rooftop')}
-                className={`px-2.5 py-1 text-xs rounded-full transition-all ${
-                  cameraAngle === 'rooftop' ? 'bg-amber-500/30 text-amber-300 font-medium' : 'text-slate-400 hover:text-slate-200'
+                className={`px-2.5 py-1 rounded-full transition-colors ${
+                  cameraAngle === 'rooftop'
+                    ? 'bg-white/15 text-white font-medium'
+                    : 'text-white/50 hover:text-white'
                 }`}
               >
-                มุมดาดฟ้า 360°
+                มุมดาดฟ้า
               </button>
               <button
                 onClick={() => setCameraAngle('side')}
-                className={`px-2.5 py-1 text-xs rounded-full transition-all ${
-                  cameraAngle === 'side' ? 'bg-amber-500/30 text-amber-300 font-medium' : 'text-slate-400 hover:text-slate-200'
+                className={`px-2.5 py-1 rounded-full transition-colors ${
+                  cameraAngle === 'side'
+                    ? 'bg-white/15 text-white font-medium'
+                    : 'text-white/50 hover:text-white'
                 }`}
               >
                 มุมข้าง
@@ -687,20 +736,20 @@ export const ThreeSunsetCanvas: React.FC<ThreeSunsetCanvasProps> = () => {
         </div>
       </div>
 
-      {/* Floating Interactive Mouse Hint */}
-      <div className="absolute bottom-6 left-6 z-20 pointer-events-none flex items-center gap-3">
-        <div className="glass-panel px-3.5 py-2 rounded-xl text-xs text-amber-200/90 flex items-center gap-2 border border-amber-500/25 shadow-xl">
-          <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+      {/* Floating Status / Scroll Hint HUD */}
+      <div className="absolute bottom-6 left-5 sm:left-8 z-20 pointer-events-none flex items-center gap-3">
+        <div className="bg-[#10131b]/95 border border-white/10 px-3.5 py-2 rounded-lg text-xs text-white/80 flex items-center gap-2.5 shadow-xl font-mono">
+          <span className="w-2 h-2 rounded-full bg-[#e59a34] animate-pulse" />
           <span>
             {isInspecting
-              ? 'คลิกลากเมาส์เพื่อหมุนดูเรือรอบทิศทาง 360 องศา'
-              : 'เลื่อนเมาส์หรือสกอร์ลง เพื่อชมเรือสำราญในมุมมอง 3D ต่างๆ'}
+              ? 'คลิกลากเมาส์ / สัมผัสหน้าจอเพื่อหมุนมุมมอง 360°'
+              : 'เลื่อนเมาส์หรือสกอร์หน้าเว็บ เพื่อเคลื่อนมุมมองเรือสำราญ 3D'}
           </span>
         </div>
       </div>
 
-      {/* Subtle Bottom Gradient Fade to Page Content */}
-      <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent pointer-events-none" />
+      {/* Atmospheric Bottom Mask to Page Content */}
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#090b10] via-[#090b10]/80 to-transparent pointer-events-none" />
     </div>
   );
 };

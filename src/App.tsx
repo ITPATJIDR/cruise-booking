@@ -23,8 +23,8 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#08090c] text-white flex flex-col font-prompt selection:bg-white selection:text-black">
-      {/* Minimal Navbar */}
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] flex flex-col font-prompt selection:bg-[var(--accent)] selection:text-[var(--on-accent)]">
+      {/* Editorial Navbar */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -61,20 +61,20 @@ export function App() {
         {activeTab === 'contact' && <ContactPage />}
       </main>
 
-      {/* Minimal Footer */}
+      {/* Editorial Footer */}
       <Footer setActiveTab={setActiveTab} />
 
-      {/* Right Side Modal / Drawer for Ship details */}
+      {/* Boarding Specification Drawer */}
       <ShipSideModal
         ship={selectedShip}
         onClose={() => setSelectedShip(null)}
       />
 
-      {/* Floating Action Buttons (Clean & Minimal) */}
+      {/* Floating Action Buttons */}
       <div className="fixed bottom-6 right-6 z-30 flex items-center gap-2">
         <button
           onClick={scrollToTop}
-          className="w-10 h-10 rounded-full bg-[#14161f] border border-white/10 text-white/60 hover:text-white flex items-center justify-center shadow-lg transition-colors"
+          className="w-10 h-10 rounded-full bg-[#10131b] border border-[var(--line-strong)] text-[var(--muted)] hover:text-white flex items-center justify-center shadow-lg transition-colors cursor-pointer"
           title="ขึ้นด้านบน"
         >
           <ArrowUp className="w-4 h-4" />
@@ -84,10 +84,10 @@ export function App() {
           href={AGENCY_INFO.lineUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs shadow-xl transition-all hover:scale-105"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[var(--emerald-action)] hover:bg-emerald-700 !text-white font-semibold text-xs shadow-xl transition-transform hover:scale-105 cursor-pointer"
         >
-          <MessageCircle className="w-4 h-4 fill-current" />
-          <span>ทัก LINE</span>
+          <MessageCircle className="w-4 h-4 fill-white text-white" />
+          <span className="!text-white">ทัก LINE</span>
         </a>
       </div>
     </div>

@@ -1,0 +1,103 @@
+/* starter-tokens.css
+ * A STRUCTURE, not a style. Every value below is a placeholder you must change
+ * on purpose for the brief (see SKILL.md pass 2). Delete this comment once done.
+ * Values shown are the "Warm Paper" direction as an example of a complete set.
+ */
+
+:root {
+  /* ---------- Type ---------- */
+  --font-display: "Google Sans", "IBM Plex Sans Thai", system-ui, sans-serif; /* CHANGE */
+  --font-body:    var(--font-display);
+  --font-mono:    "IBM Plex Mono", ui-monospace, monospace;
+
+  --text-xs: 0.75rem;   /* 12 labels */
+  --text-sm: 0.875rem;  /* 14 UI */
+  --text-md: 1rem;      /* 16 body */
+  --text-lg: 1.25rem;   /* 20 lead / card title */
+  --text-xl: 1.75rem;   /* 28 */
+  --text-2xl: 2.5rem;   /* 40 section heading */
+  --text-3xl: 3.5rem;   /* 56 display */
+  --text-4xl: 5rem;     /* 80 hero, desktop only */
+
+  --leading-tight: 1.05;  /* display */
+  --leading-snug: 1.2;    /* headings */
+  --leading-body: 1.6;    /* Latin body */
+  --leading-body-th: 1.75;/* Thai body */
+
+  --tracking-display: -0.02em;
+  --tracking-label: 0.06em;
+
+  /* ---------- Colour roles (tinted neutrals) ---------- */
+  --bg:          #f4f1ea;
+  --surface:     #fbf9f5;
+  --surface-2:   #f1efeb;
+  --text:        #1f1d1a;
+  --muted:       #55504a;
+  --faint:       #7a756d;
+  --line:        #e3ded3;
+  --line-strong: #d4cec2;
+  --ink:         #1e1c1a;
+  --ink-pressed: #121110;
+  --on-ink:      #fffdf9;
+  --accent:      #c2410c; /* ONE job — write it here: e.g. "primary CTA only" */
+  --on-accent:   #fffdf9;
+
+  /* ---------- Shape ---------- */
+  --radius-sm: 6px;      /* chips, inputs */
+  --radius-md: 16px;     /* cards */
+  --radius-pill: 999px;  /* buttons, tabs, segmented controls */
+
+  /* ---------- Elevation (tinted with --text) ---------- */
+  --shadow-hairline: 0 0 0 .5px rgb(31 29 26 / .06), 0 1px 2px rgb(31 29 26 / .14);
+  --shadow-card:     0 8px 24px rgb(31 29 26 / .08);
+  --shadow-raised:   0 8px 24px rgb(31 29 26 / .12);
+
+  /* ---------- Space ---------- */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+  --space-9: 96px; --space-10: 160px;
+  --container: 1200px;
+  --reading: 65ch;
+
+  /* ---------- Motion ---------- */
+  --dur-fast: 150ms;
+  --dur-move: 240ms;
+  --dur-panel: 420ms;
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --ease-spring: cubic-bezier(.2, .9, .25, 1.15); /* or a linear() spring curve */
+}
+
+/* Dark palette: re-derive, don't invert. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141311; --surface: #1c1a17; --surface-2: #23211d;
+    --text: #f3efe7; --muted: #b7b0a5; --faint: #8d877d;
+    --line: #2e2b26; --line-strong: #3b3732;
+    --ink: #f3efe7; --ink-pressed: #ffffff; --on-ink: #141311;
+    --shadow-card: 0 0 0 1px var(--line);
+    --shadow-raised: 0 0 0 1px var(--line-strong);
+  }
+}
+
+/* ---------- Base ---------- */
+html { color-scheme: light dark; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: var(--text-md)/var(--leading-body) var(--font-body);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+:lang(th), [lang="th"] { line-height: var(--leading-body-th); letter-spacing: 0; }
+h1, h2, h3 { line-height: var(--leading-snug); letter-spacing: var(--tracking-display); text-wrap: balance; margin: 0; }
+:lang(th) :is(h1, h2, h3) { letter-spacing: 0; line-height: 1.25; }
+p { text-wrap: pretty; max-width: var(--reading); }
+a { color: inherit; text-underline-offset: .2em; }
+:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; border-radius: 4px; }
+::selection { background: var(--ink); color: var(--on-ink); }
+.num { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
