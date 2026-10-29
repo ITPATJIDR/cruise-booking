@@ -70,8 +70,8 @@ export function App() {
         onClose={() => setSelectedShip(null)}
       />
 
-      {/* Floating Action Buttons */}
-      <div className="fixed bottom-6 right-6 z-30 flex items-center gap-2">
+      {/* Floating Action Buttons (the 3D home page has its own LINE button and clock in this corner) */}
+      {activeTab !== 'home' && <div className="fixed bottom-6 right-6 z-30 flex items-center gap-2">
         <button
           onClick={scrollToTop}
           className="w-10 h-10 rounded-full bg-[#10131b] border border-[var(--line-strong)] text-[var(--muted)] hover:text-white flex items-center justify-center shadow-lg transition-colors cursor-pointer"
@@ -89,7 +89,7 @@ export function App() {
           <MessageCircle className="w-4 h-4 fill-white text-white" />
           <span className="!text-white">ทัก LINE</span>
         </a>
-      </div>
+      </div>}
     </div>
   );
 }
